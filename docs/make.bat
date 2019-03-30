@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=mpc_boilerplate
+set SPHINXPROJ=wis
 
 if "%1" == "" goto help
 

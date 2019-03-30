@@ -1,26 +1,26 @@
 ===============
-MPC Boilerplate
+MPC WIS Project
 ===============
 
 
-.. image:: https://img.shields.io/pypi/v/mpc_boilerplate.svg
-        :target: https://pypi.python.org/pypi/mpc_boilerplate
+.. image:: https://img.shields.io/pypi/v/wis.svg
+        :target: https://pypi.python.org/pypi/wis
 
-.. image:: https://img.shields.io/travis/matthewjohnpayne/mpc_boilerplate.svg
-        :target: https://travis-ci.org/matthewjohnpayne/mpc_boilerplate
+.. image:: https://img.shields.io/travis/matthewjohnpayne/wis.svg
+        :target: https://travis-ci.org/matthewjohnpayne/wis
 
-.. image:: https://readthedocs.org/projects/mpc-boilerplate/badge/?version=latest
-        :target: https://mpc-boilerplate.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/wis/badge/?version=latest
+        :target: https://wis.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
 
 
 
-MPC Boilerplate contains all the boilerplate you need to create a Python package for the MPC
+WIS Project Structure was copied from MPC Boilerplate: This README needs to be updated
 
 
 * Free software: MIT license
-* Documentation: https://mpc-boilerplate.readthedocs.io. or  or https://mpcutilities.readthedocs.io. ??? 
+* Documentation: https://wis.readthedocs.io. or  or https://mpcutilities.readthedocs.io. ??? 
 
 
 Features

@@ -1,4 +1,4 @@
-# ~/Envs/mpcvenv/mpc_boilerplate/mpc_boilerplate/refraction.py
+# ~/Envs/mpcvenv/wis/wis/refraction.py
 # Copied from...
 # https://nsls-ii.github.io/scientific-python-cookiecutter/the-code-itself.html
 
