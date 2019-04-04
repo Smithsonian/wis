@@ -38,8 +38,8 @@ and "help wanted" is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-MPC WIS Project could always use more documentation, whether as part of the
-official MPC WIS Project docs, in docstrings, or even on the web in blog posts,
+MPC wis.py Project could always use more documentation, whether as part of the
+official MPC wis.py Project docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback
