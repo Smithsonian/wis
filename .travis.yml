@@ -13,7 +13,7 @@ install:
 
 env:
   global:
-    # Doctr deploy key for matthewjohnpayne/mpc_boilerplate
+    # Doctr deploy key for matthewjohnpayne/wis
     - secure: "hNzduCyZCBKkJosd8UWwdFY5KwDbblxF6puuv67XpCcDRRAqzzsKVztPe3pSMDJ4lTbf54EhPJ6lkfsXPszKTFcuek5Tfzmevd9nuXQBlWmCvHvaHfb7yILboBm8jYdVZjhSaZpmYZzSmYmsMVQLvKtQPCqVvQIFVjDAAqY8CxUWjihmboA3Qx+7eJofw7LWbN9Im9gstCUq/uSQMR6CWWg62sAAWQjj2Ihj2ajqMn+iA+XnGNSaOcxOnCyaNGhbCA6YwbXnUcHVfHzhxJlWZ0b/3IOl2NZYMAX/4zR7WP7OTOHZJ/+mfcib59nh+FdciTHPUciXzJt5RPrjKK+G1cXGMfGVN2oq5J8V6u8dglYolAV1YaejLQYD7+hUsFLJ50lylobVVAafXUM04lCs7ZrLUKc9NJjie0aHmGk+iOpA19lQUKbfHumGlECfjWFczSA0jCYuTGwH3EbSyjC1OTwP9dbC9niR4c+Oc274fnr9mTFaLLH2QkwQoN2fy60AS9yPBcKRt74liRjbiQ7MR+IbLtAv0p6Rsc0IASuD2QXagcfm/VlsNp2d3K7Kd/bM6fFUyfAWINS+5HWF11LD7xv5HkUwOrmVc/IhNEoEUpzjb6CJ/G9PoeTBIzik4avYX16uKQya/Gv+r2DOs4hSs+0Enb5M28X/V8yQC9GOaFc="
 
 # Command to run tests, e.g. python setup.py test
