@@ -25,6 +25,7 @@
 # -----------------------------------------
 import spiceypy as sp
 import numpy as np
+from astropy.time import Time
 
 # -----------------------------------------
 # Local imports
@@ -44,9 +45,8 @@ class Satellite(object):
         ----------
         obscode : MPC observation code
             3 or 4 character string
-        jdutc   : float
-            Julian date (assumed to be UTC)
-            Expected to be of the form 2458337.8283571
+        times   : astropy Time object
+            http://docs.astropy.org/en/stable/time/
         center  : coordinate center
             ...
        
@@ -60,9 +60,10 @@ class Satellite(object):
 
         """
     
-    def __init__(self, obscode, jdutc, center="SUN", frame = "ECLIPJ2000", abcorr = "NONE"):
+    def __init__(self, obscode, times,  center="SUN", frame = "ECLIPJ2000", abcorr = "NONE"):
         """
             Initialize the Satellite object
+            
             Does formatting-checks on the supplied variables
             
             Uses "Kernel" to manage loading of required spice-kernels
@@ -73,9 +74,8 @@ class Satellite(object):
             ----------
             obscode : MPC observation code
                 3 or 4 character string
-            jdutc   : float
-                Julian date (assumed to be UTC)
-                Expected to be of the form 2458337.8283571
+            times   : astropy Time object
+                http://docs.astropy.org/en/stable/time/
             center  : coordinate center
                 ...
             
@@ -84,15 +84,15 @@ class Satellite(object):
 
         # Assert that the inputs are formatted correctly
         # -----------------------------------------------
-        self.obscode, self.jdutc, self.center = self._check_input_formats(obscode, jdutc, center)
+        self.obscode, self.time, self.center = self._check_input_formats(obscode, times, center)
 
         # Try to load the spiceypy kernels
         # -----------------------------------------------
         K = Manager(obscode=self.obscode)
 
-        # Convert the supplied jdutc to the required format for spiceypy
+        # Convert the supplied time to the required format for spiceypy
         # -----------------------------------------------
-        self.epochs = np.array([sp.utc2et('JD'+str(jdutc)) for jdutc in self.jdutc])
+        self.epochs = np.array([sp.utc2et('JD'+str(jdutc)) for jdutc in self.time.utc.jd])
         
         # Evaluate the position of the satellite using the loaded kernels
         # -----------------------------------------------
@@ -139,7 +139,7 @@ class Satellite(object):
         return np.array(states), np.array(ltts)
 
 
-    def _check_input_formats(self, obscode, jdutc, center):
+    def _check_input_formats(self, obscode, time, center):
         """
             Assert that the inputs are formatted correctly
             
@@ -147,9 +147,8 @@ class Satellite(object):
             ----------
             obscode : MPC observation code
                 3 or 4 character string
-            jdutc   : float
-                Julian date (assumed to be UTC)
-                Expected to be of the form 2458337.8283571
+            time   : astropy Time object
+                http://docs.astropy.org/en/stable/time/
             center  : coordinate center
                 ...
             
@@ -169,14 +168,9 @@ class Satellite(object):
         # -----------------------------------------------
         assert obscode in obscodeDict, 'Supplied obscode [%r] is not in known/allowed codes [%r] from file.' % (obscode,list(obscodeDict.keys()) )
         
-        # Assert supplied jdutc is likely to be of the form "2458337.8283571"
+        # Assert supplied time is of the correct format
         # -----------------------------------------------
-        jdutc = np.atleast_1d(jdutc)
-        # Are the inputs floats ?
-        assert np.all( [isinstance(j, float) for j in jdutc ]), ' Supplied jdutc [%r] not a float ' % jdutc
-        # Double-checking that there is a decimal point in there
-        assert np.all( [ "." in str(j)       for j in jdutc ]), ' Supplied jdutc [%r] does not contain a "." ' % jdutc
-        # Check that there are 7 digits to the left of the decimal-point so that we are somewhere in the correct era
-        assert np.all( [len(str(j)[:str(j).find('.')]) in [7] for j in jdutc ]), ' Supplied jdutc [%r] has insufficient digits ' % jdutc
+        assert isinstance(time , Time )
+        time = time.utc
 
-        return obscode, jdutc, center
+        return obscode, time, center
