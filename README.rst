@@ -14,23 +14,29 @@ MPC wis.py Project
         :alt: Documentation Status
 
 
-wis.py tells you the position of a satellite (e.g. in heliocentric coordinates)
-wis.py uses JPL spice kernels, so you need spicypy
-wis.py goes and gets the spice-kernels if you don't have them
+wis.py tells you the position of a satellite (e.g. in heliocentric coordinates).
+
+wis.py uses JPL spice kernels, so you need spicypy.
+
+wis.py goes and gets the spice-kernels if you don't have them.
+
     
 wis.py is essentially a means to automate the retrieval of
 useful spice-kernels. All of the positional calculations
-are handled using spice/spiceypy
+are handled using spice/spiceypy.
 
 wis.py doesn't know about all satellites.
+
 So far it only knows about:
-- TESS
-- K2
-- CASSINI
+* TESS
+* K2
+* CASSINI
  
 wis.py is very light & wispy ...
-wis ~ Where Is Satellite
-    ~ Where Is Satellite-spice-kernel
+
+wis 
+* ~ Where Is Satellite
+* ~ Where Is Satellite-spice-kernel
 
 
 * Free software: MIT license

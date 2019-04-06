@@ -3,5 +3,5 @@
 numpy
 pytest
 spiceypy
-json
-
+bs4
+wget

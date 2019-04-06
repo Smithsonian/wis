@@ -16,6 +16,8 @@ from bs4 import BeautifulSoup
 import requests
 import glob
 import wget
+import numpy as np
+import sys
 
 # -----------------------------------------
 # WIS functions & classes
@@ -33,20 +35,25 @@ class Instructions(object):
         
         # Download explicitly named files
         for f in self.files:
-            wget.download(f, out=destinationDirectory)
-        
+            try:
+                wget.download(f, out=destinationDirectory)
+            except:
+                print("Failed to download %r" % f)
+                    
         # Download files using wildcards
-        for url,wildcard in I.wildcards:
-            for f in _listFD(url, wildcard = wildcard):
+        for url,wildcard in self.wildcards.items():
+            for f in self._listFD(url, wildcard = wildcard):
                 wget.download(f, out=destinationDirectory)
             
     
         # Check whether the download worked
-        downloaded, kernelFiles = self.kernels_have_been_downloaded(destinationDirectory)
+        downloaded, downloadedKernelFiles = self.kernels_have_been_downloaded(destinationDirectory)
 
         if downloaded:
-            return kernelFiles
+            return downloadedKernelFiles
         else:
+            #print("destinationDirectory", destinationDirectory)
+            #print("downloaded, downloadedKernelFiles", downloaded, downloadedKernelFiles)
             sys.exit('download unsuccessful ... ')
             
 
@@ -54,19 +61,20 @@ class Instructions(object):
         
         # Check what files exist locally
         # -----------------------------------------------
-        kernelFiles = glob.glob("%s/*" % destinationDirectory)
+        downloadedKernelFiles = [ f[f.rfind("/")+1:] for f in glob.glob("%s/*" % destinationDirectory) ]
         
-        # Check what files *need* to exist
+        # Check what files *need* to exist (if wildcards exist, we demand at least 1 download per wildcard)
         # - if they don't, then download
         # -----------------------------------------------
-        if len(kernelFiles) < len(self.files)+len(self.wildcards) or \
-                not np.all( [ f in kernelFiles for f in self.files] ):
+        requiredFiles = [ f[f.rfind("/")+1:] for f in self.files ]
+        if len(downloadedKernelFiles) < len(requiredFiles)+len(self.wildcards) or \
+                not np.all( [ rf in downloadedKernelFiles for rf in requiredFiles] ):
             return False, []
         else:
-            return True, kernelFiles
+            return True, downloadedKernelFiles
 
 
-    def _listFD(url, wildcard=''):
+    def _listFD(self , url, wildcard=''):
         '''
             List all the files in a url
             Allows a wildcard of the form stem*end
@@ -100,7 +108,7 @@ class Instructions(object):
 TESS = Instructions()
 TESS.obscode        = '-95'
 TESS.name           = 'TESS'
-TESS.files          = ['https://archive.stsci.edu/missions/tess/models/tess2018338154046-41240_naif0012.tls.txt',
+TESS.files          = ['https://archive.stsci.edu/missions/tess/models/tess2018338154046-41240_naif0012.tls',
                        'https://archive.stsci.edu/missions/tess/models/tess2018338154429-41241_de430.bsp']
 TESS.wildcards      = {'https://archive.stsci.edu/missions/tess/models/':'TESS_EPH_DEF*'}
 
@@ -111,7 +119,7 @@ K2 = Instructions()
 K2.obscode          = '-227'
 K2.name             = 'K2'
 K2.files            = ['https://archive.stsci.edu/pub/k2/spice/kplr2018134232543.tsc',
-                       'https://archive.stsci.edu/pub/k2/spice/naif0012.tls ',
+                       'https://archive.stsci.edu/pub/k2/spice/naif0012.tls',
                        'https://archive.stsci.edu/pub/k2/spice/spk_2018290000000_2018306220633_kplr.bsp']
 K2.wildcards        = {}
 
@@ -121,14 +129,14 @@ K2.wildcards        = {}
 CASSINI = Instructions()
 CASSINI.obscode          = '-82'
 CASSINI.name             = 'CASSINI'
-CASSINI.files            = ['https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/a_old_versions/naif0009.tls'
-                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/sclk/cas00084.tsc'
-                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/pck/cpck05Mar2004.tpc'
-                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/fk/release.11/cas_v37.tf'
-                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/ck/04135_04171pc_psiv2.bc'
-                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/spk/030201AP_SK_SM546_T45.bsp'
-                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/ik/release.11/cas_iss_v09.ti'
-                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/spk/020514_SE_SAT105.bsp'
+CASSINI.files            = ['https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/a_old_versions/naif0009.tls',
+                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/sclk/cas00084.tsc',
+                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/pck/cpck05Mar2004.tpc',
+                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/fk/release.11/cas_v37.tf',
+                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/ck/04135_04171pc_psiv2.bc',
+                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/spk/030201AP_SK_SM546_T45.bsp',
+                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/ik/release.11/cas_iss_v09.ti',
+                           'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/spk/020514_SE_SAT105.bsp',
                            'https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/spk/981005_PLTEPH-DE405S.bsp']
 CASSINI.wildcards        = {}
 

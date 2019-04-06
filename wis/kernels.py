@@ -8,7 +8,7 @@ import warnings
 # -----------------------------------------
 # Local imports
 # -----------------------------------------
-from satellite_obscodes import obscodeDict
+from .satellite_obscodes import obscodeDict
 
 # -----------------------------------------
 # WIS functions & classes
@@ -32,7 +32,7 @@ class Manager(object):
         -----
         """
     
-    def __init__(self, obscode=None, jdutc=None):
+    def __init__(self, obscode=None):
         
         # Manage directory for downloaded kernels
         # -----------------------------------------------
@@ -40,8 +40,8 @@ class Manager(object):
         
         # If not called empty, do all subsequent steps
         # -----------------------------------------------
-        if obscode != None and jdutc != None:
-            self.obscode, self.jdutc = obscode, jdutc
+        if obscode != None:
+            self.obscode = obscode
             
             # Manage sub-directory for obscode downloads
             # -----------------------------------------------

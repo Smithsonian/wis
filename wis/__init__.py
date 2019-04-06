@@ -6,4 +6,3 @@ __author__ = """Matthew John Payne"""
 __email__ = 'mpayne@cfa.harvard.edu;matthewjohnpayne@gmail.com'
 __version__ = '1.0.0'
 
-from satellite_obscodes import obscodeDict, Instructions
