@@ -22,10 +22,10 @@ wis.py goes and gets the spice-kernels if you don't have them.
 
     
 wis.py is essentially a means to automate the retrieval of
-useful spice-kernels. All of the positional calculations
-are handled using spice/spiceypy.
+useful spice-kernels. 
+All of the positional calculations are handled using spice/spiceypy.
 
-wis.py doesn't know about all satellites.
+wis.py does *not* know about *all* satellites.
 
 So far it only knows about:
 * TESS
