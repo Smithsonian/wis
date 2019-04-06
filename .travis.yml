@@ -39,5 +39,5 @@ deploy:
     secure: PLEASE_REPLACE_ME
   on:
     tags: true
-    repo: matthewjohnpayne/mpc_boilerplate
+    repo: matthewjohnpayne/wis
     python: 3.6
