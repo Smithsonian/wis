@@ -22,7 +22,7 @@ test_requirements = ['pytest', ]
 
 setup(
     author="Matthew John Payne",
-    author_email='mpayne@cfa.harvard.edu;matthewjohnpayne@gmail.com',
+    author_email='matthewjohnpayne@gmail.com',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -30,7 +30,7 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3.5',
     ],
-    description="WIS Project Structure was copied from MPC Boilerplate: This README needs to be updated",
+    description="wis.py gives satellite positions at requested times. It manages kernel downloads. It requires astropy and spicepy. ",
     install_requires=requirements,
     license="MIT license",
     long_description=readme + '\n\n' + history,
