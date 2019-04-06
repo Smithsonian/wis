@@ -6,3 +6,4 @@ spiceypy
 bs4
 wget
 astropy
+requests
