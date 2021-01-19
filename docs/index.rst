@@ -1,4 +1,4 @@
-Welcome to MPC Boilerplate's documentation!
+Welcome to wis.py's documentation!
 ======================================
 
 .. toctree::
@@ -6,10 +6,9 @@ Welcome to MPC Boilerplate's documentation!
    :caption: Contents:
 
    readme
+   contributing
    installation
    usage
-   modules
-   contributing
    authors
    history
 
