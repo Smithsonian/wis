@@ -30,12 +30,55 @@ from astropy.time import Time
 # -----------------------------------------
 # Local imports
 # -----------------------------------------
-from .kernels import Manager
-from .satellite_obscodes import obscodeDict, Instructions
+#try:
+#    from .kernels import Manager
+#    from .satellite_obscodes import obscodeDict
+#except:
+from kernels            import KernelLoader
+from satellite_obscodes import satellite_obscode_dict
+from ground_obscodes    import ground_obscode_dict
+from excluded_obscodes  import excluded_obscode_dict
 
 # -----------------------------------------
 # WIS functions & classes
 # -----------------------------------------
+
+
+def wis(obscode, times,  center="SUN", frame = "ECLIPJ2000", abcorr = "NONE", EXCLUDE_AS_GEO = False, UNKNOWN_AS_GEO = False):
+    """
+    WIP Code to generalize from Satellite Obs-Codes to *Any* Obs-Code
+    
+    NB, the input variables could do with having more user-friendly names
+    """
+    
+        
+    # If the obscode is a satellite one that we can work with, return Satellite class
+    if obscode in satellite_obscode_dict:
+        return Satellite(obscode, times,  center=center, frame=frame,abcorr =abcorr)
+    
+    # If the obscode is a ground-based site that we can work with, return Ground class
+    elif obscode in ground_obscode_dict:
+        return Ground(obscode, times,  center=center, frame=frame,abcorr =abcorr)
+    
+    # Allow for the possibility of treating some obs-codes differently
+    # (I am thinking of roving code 247)
+    elif obscode in excluded_obscode_dict:
+        print('That obscode is listed as being one that wis.py should specifically exclude')
+        if EXCLUDE_AS_GEO:
+            print('Proceeding as if from the geocenter')
+            return Ground('500', times,  center=center, frame=frame,abcorr =abcorr)
+        else:
+            return None
+
+    # Catch unknown obscodes
+    else:
+        print('That obscode is unknown by wis.py')
+        if UNKNOWN_AS_GEO:
+            print('Proceeding as if from the geocenter')
+            return Ground('500', times,  center=center, frame=frame,abcorr =abcorr)
+        else:
+            return None
+
 
 class Satellite(object):
     """
@@ -87,8 +130,9 @@ class Satellite(object):
         self.obscode, self.time, self.center = self._check_input_formats(obscode, times, center)
 
         # Try to load the spiceypy kernels
+        # NB: We are passing in an obscode-specific-KernelDownloader from the dicts
         # -----------------------------------------------
-        K = Manager(obscode=self.obscode)
+        K = KernelLoader( satellite_obscode_dict[self.obscode] )
 
         # Convert the supplied time to the required format for spiceypy
         # -----------------------------------------------
@@ -127,7 +171,7 @@ class Satellite(object):
             ltts: light travel times
                 1xN vector of one way light time between observer and target in [s]
             
-            Not used in default init
+            *** Not used in default init ***
             ----------
             
         """
@@ -166,7 +210,7 @@ class Satellite(object):
             
         # Assert that the obscode is one that we know how to handle
         # -----------------------------------------------
-        assert obscode in obscodeDict, 'Supplied obscode [%r] is not in known/allowed codes [%r] from file.' % (obscode,list(obscodeDict.keys()) )
+        assert obscode in satellite_obscode_dict, 'Supplied obscode [%r] is not in known/allowed codes [%r] from file.' % (obscode,list(satellite_obscode_dict.keys()) )
         
         # Assert supplied time is of the correct format
         # -----------------------------------------------
@@ -174,3 +218,22 @@ class Satellite(object):
         time = time.utc
 
         return obscode, time, center
+
+
+
+
+
+class Ground(object):
+    """
+        Object to manage the calculation of ground-based station locations.
+    
+    """
+    
+    def __init__(self, obscode, times,  center="SUN", frame = "ECLIPJ2000", abcorr = "NONE"):
+        """ May want/need to change the variables later"""
+
+        # For now I am just initializing these variables to make them comparable to the Satellite class.
+        self.obscode, self.time, self.center = None, None, None
+        self.epochs = None
+        self.posns, self.ltts = None, None
+

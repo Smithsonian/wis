@@ -1,22 +1,128 @@
+"""
+    Functions and Objects used by WIS to download
+    data (spice-kernels) for station-codes.
+    
+    These will typically be for satellite missions
+"""
 # -----------------------------------------
 # Third-party imports
 # -----------------------------------------
-import spiceypy as sp
+from bs4 import BeautifulSoup
+import requests
+import glob
+import wget
+import numpy as np
 import os
+import sys
+import spiceypy as sp
 import warnings
 
 # -----------------------------------------
 # Local imports
 # -----------------------------------------
-from .satellite_obscodes import obscodeDict
+# None
 
 # -----------------------------------------
 # WIS functions & classes
 # -----------------------------------------
 
-class Manager(object):
+class KernelDownloader(object):
     """
-        Object to manage the download and loading of JPL spice-kernels
+        KernelDownloader-Object
+        
+        Holds the specification of where data is online for a given satellite
+        
+        Provides method to download the data to local machine
+    """
+    
+    def __init__(self,):
+        pass
+        ''' NB, we will need to set the following variables when we define each instantiation '''
+        '''
+        self.obscode        = None
+        self.name           = None
+        self.files          = []
+        self.wildcards      = {}
+        '''
+        
+    def download_data(self, destinationDirectory):
+        
+        # Download explicitly named files
+        for f in self.files:
+            try:
+                wget.download(f, out=destinationDirectory)
+            except:
+                print("Failed to download %r" % f)
+                    
+        # Download files using wildcards
+        for url,wildcard in self.wildcards.items():
+            for f in self._listFD(url, wildcard = wildcard):
+                wget.download(f, out=destinationDirectory)
+            
+    
+        # Check whether the download worked
+        downloaded, downloadedKernelFiles = self.kernels_have_been_downloaded(destinationDirectory)
+
+        if downloaded:
+            return downloadedKernelFiles
+        else:
+            #print("destinationDirectory", destinationDirectory)
+            #print("downloaded, downloadedKernelFiles", downloaded, downloadedKernelFiles)
+            sys.exit('download unsuccessful ... ')
+            
+
+    def kernels_have_been_downloaded(self, destinationDirectory):
+        
+        # Check what files exist locally
+        # -----------------------------------------------
+        downloadedKernelFiles = [ f[f.rfind("/")+1:] for f in glob.glob("%s/*" % destinationDirectory) ]
+        
+        # Check what files *need* to exist (if wildcards exist, we demand at least 1 download per wildcard)
+        # - if they don't, then download
+        # -----------------------------------------------
+        requiredFiles = [ f[f.rfind("/")+1:] for f in self.files ]
+        if len(downloadedKernelFiles) < len(requiredFiles)+len(self.wildcards) or \
+                not np.all( [ rf in downloadedKernelFiles for rf in requiredFiles] ):
+            return False, []
+        else:
+            return True, downloadedKernelFiles
+
+
+    def _listFD(self , url, wildcard=''):
+        '''
+            List all the files in a url
+            Allows a wildcard of the form stem*end
+            Stolen from
+            https://stackoverflow.com/questions/11023530/python-to-list-http-files-and-directories
+        '''
+        
+        # Split wildcard (if it contains "*")
+        if wildcard.count("*") == 0:
+            wildcardStart = wildcard
+            wildcardEnd   = ''
+        elif wildcard.count("*") == 1:
+            wildcardStart = wildcard[ : wildcard.find("*")]
+            wildcardEnd   = wildcard[ wildcard.find("*") + 1 :]
+        else:
+            sys.exit('Cannot parse wildcards with >=2 asterisks in them ... [%r]' % wildcard)
+
+        # Get page ...
+        page = requests.get(url).text
+
+        # Parse page
+        soup = BeautifulSoup(page, 'html.parser')
+        
+        # Return matching filenames
+        return [url + '/' + node.get('href') for node in soup.find_all('a') if node.get('href').startswith(wildcardStart) and node.get('href').endswith(wildcardEnd) ]
+
+
+
+
+
+class KernelLoader(object):
+    """
+        Object to manage the loading of JPL spice-kernels into memory.
+         - NB: it will also download from the interwebs if not available locally
         
         Parameters
         ----------
@@ -32,33 +138,27 @@ class Manager(object):
         -----
         """
     
-    def __init__(self, obscode=None):
-        
-        # Manage directory for downloaded kernels
+    def __init__(self, obscode_specific_KernelDownloader):
+
+        # Directory for downloaded kernels
         # -----------------------------------------------
         self.download_dir = self.define_download_dir()
-        
-        # If not called empty, do all subsequent steps
+                
+        # Manage sub-directory for obscode downloads
         # -----------------------------------------------
-        if obscode != None:
-            self.obscode = obscode
-            
-            # Manage sub-directory for obscode downloads
-            # -----------------------------------------------
-            self.download_subdir = self.define_download_subdir(self.obscode)
-            
-            # Try to get the local kernelFiles for satellite-specific kernels
-            # If not available locally, do remote download of kernels
-            # -----------------------------------------------
-            I = obscodeDict[self.obscode]
-            downloaded, kernelFiles = I.kernels_have_been_downloaded(self.download_subdir)
-            if not downloaded:
-                kernelFiles = I.download_data(self.download_subdir)
+        self.download_subdir = self.define_download_subdir(obscode_specific_KernelDownloader.obscode)
+        
+        # Try to get the specific desired kernel-files locally ...
+        # If not available locally, do remote download of kernels
+        # -----------------------------------------------
+        downloaded, kernelFiles = obscode_specific_KernelDownloader.kernels_have_been_downloaded(self.download_subdir)
+        if not downloaded:
+            kernelFiles = obscode_specific_KernelDownloader.download_data(self.download_subdir)
 
-            # Load the satellite-specific kernels
-            # -----------------------------------------------
-            kernelFilepaths = [ os.path.join(self.download_subdir , f) for f in kernelFiles ]
-            sp.furnsh(kernelFilepaths)
+        # Load the satellite-specific kernels
+        # -----------------------------------------------
+        kernelFilepaths = [ os.path.join(self.download_subdir , f) for f in kernelFiles ]
+        sp.furnsh(kernelFilepaths)
 
 
 
