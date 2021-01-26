@@ -28,7 +28,7 @@ import kernels
 # Test Functions
 # -----------------------------------------
 
-
+'''
 def test_satellite_obscode_dict_A():
     
     """Test obscodeDict exists and has content."""
@@ -46,14 +46,14 @@ def test_satellite_obscode_dict_C():
     """Test obscodeDict values are Instructions-objects"""
     for k,v in wis.satellite_obscode_dict.items():
         print('type=', type(v) )
-        assert isinstance(v, kernels.KernelDownloader ), '[%r] for [%r] not an Instructions-object' % (v,k)
+        assert isinstance(v, kernels.KernelSpecifier ), '[%r] for [%r] not an Instructions-object' % (v,k)
 
 def test_satellite_obscode_dict_D():
     """Test Instructions-objects contain minimum requirements"""
     for k,v in wis.satellite_obscode_dict.items():
         for requiredKey in ['obscode','name', 'files']:
             assert hasattr(v, requiredKey), 'requiredKey [%r] not in (%r, %r)' % (requiredKey,k,v)
-
+'''
 
 '''
     
@@ -118,7 +118,6 @@ def test_Instructions_download_A():
 
 
 
-
 def test_Satellite_A():
     """Test that a Satellite-object can be created/accessed"""
     time    = Time([2458337.8283571], format='jd', scale='tdb')
@@ -165,49 +164,91 @@ def test_Satellite_D():
     S = wis.Satellite(obscode, time)
     
     # *** DATA FROM EXPLICIT HORIZONS QUERY -------------
-    '''
-    Target body name: TESS (spacecraft) (-95)         {source: TESS_merged}
-    Center body name: Sun (10)                        {source: TESS_merged}
-    Center-site name: BODY CENTER
-    *******************************************************************************
-    Start time      : A.D. 2018-Aug-07 07:52:50.0534 TDB
-    Stop  time      : A.D. 2018-Aug-07 09:36:00.0000 TDB
-    Step-size       : 0 steps
-    *******************************************************************************
-    Center geodetic : 0.00000000,0.00000000,0.0000000 {E-lon(deg),Lat(deg),Alt(km)}
-    Center cylindric: 0.00000000,0.00000000,0.0000000 {E-lon(deg),Dxy(km),Dz(km)}
-    Center radii    : 696000.0 x 696000.0 x 696000.0 k{Equator, meridian, pole}
-    Output units    : KM-D
-    Output type     : GEOMETRIC cartesian states
-    Output format   : 3 (position, velocity, LT, range, range-rate)
-    Reference frame : ICRF/J2000.0
-    Coordinate systm: Ecliptic and Mean Equinox of Reference Epoch
-    *******************************************************************************
-    JDTDB
-    X     Y     Z
-    VX    VY    VZ
-    LT    RG    RR
-    *******************************************************************************
-    $$SOE
-    2458337.829157830 = A.D. 2018-Aug-07 07:53:59.2365 TDB [del_T=     69.183095 s]
-    X = 1.062342805938861E+08 Y =-1.082364019892699E+08 Z =-7.200821989670396E+04
-    VX= 1.881858820191574E+06 VY= 1.709241625576401E+06 VZ= 7.348832462143537E+04
-    LT= 5.855142406579759E-03 RG= 1.516602989383414E+08 RR= 9.831486948508087E+04
-    2458338.829157830 = A.D. 2018-Aug-08 07:53:59.2365 TDB [del_T=     69.183072 s]
-    X = 1.081418885028859E+08 Y =-1.064747162599978E+08 Z = 1.748584038066864E+04
-    VX= 1.930452574054366E+06 VY= 1.842854960163861E+06 VZ= 9.692709021812357E+04
-    LT= 5.859047013409530E-03 RG= 1.517614363314088E+08 RR= 8.267596292346843E+04
-    $$EOE    
-    '''
+    """
+*******************************************************************************
+Ephemeris / WWW_USER Tue Jan 26 06:45:47 2021 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: TESS (spacecraft) (-95)         {source: TESS_merged}
+Center body name: Sun (10)                        {source: TESS_merged}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2018-Aug-07 07:53:59.2365 TDB
+Stop  time      : A.D. 2018-Aug-08 07:53:59.2365 TDB
+Step-size       : 1440 minutes
+*******************************************************************************
+Center geodetic : 0.00000000,0.00000000,0.0000000 {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.00000000,0.00000000,0.0000000 {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 696000.0 x 696000.0 x 696000.0 k{Equator, meridian, pole}
+Output units    : AU-D
+Output type     : GEOMETRIC cartesian states
+Output format   : 3 (position, velocity, LT, range, range-rate)
+Reference frame : ICRF
+*******************************************************************************
+JDTDB
+   X     Y     Z
+   VX    VY    VZ
+   LT    RG    RR
+*******************************************************************************
+$$SOE
+2458337.829157830 = A.D. 2018-Aug-07 07:53:59.2365 TDB
+ X = 7.101323039968829E-01 Y =-6.636211705364583E-01 Z =-2.882396266749596E-01
+ VX= 1.257944923527931E-02 VY= 1.028735601134911E-02 VZ= 4.995535623042180E-03
+ LT= 5.855142406578412E-03 RG= 1.013786481242387E+00 RR= 6.571943104235539E-04
+2458338.829157830 = A.D. 2018-Aug-08 07:53:59.2365 TDB
+ X = 7.228838752596055E-01 Y =-6.530547342937241E-01 Z =-2.830064804389050E-01
+ VX= 1.290427841664855E-02 VY= 1.104448197596006E-02 VZ= 5.494559966538393E-03
+ LT= 5.859047013408399E-03 RG= 1.014462542957702E+00 RR= 5.526546773311499E-04
+$$EOE
+*******************************************************************************
+Coordinate system description:
+
+  International Celestial Reference Frame (ICRF)
+
+    The ICRF is an adopted reference frame whose axes are defined relative to
+    fixed extragalactic radio sources distributed across the sky.
+
+    The ICRF was aligned with the prior FK5/J2000 dynamical system at the ~0.02
+    arcsecond level but is not identical and has no associated standard epoch.
+
+  Symbol meaning [1 au= 149597870.700 km, 1 day= 86400.0 s]:
+
+    JDTDB    Julian Day Number, Barycentric Dynamical Time
+      X      X-component of position vector (au)
+      Y      Y-component of position vector (au)
+      Z      Z-component of position vector (au)
+      VX     X-component of velocity vector (au/day)
+      VY     Y-component of velocity vector (au/day)
+      VZ     Z-component of velocity vector (au/day)
+      LT     One-way down-leg Newtonian light-time (day)
+      RG     Range; distance from coordinate center (au)
+      RR     Range-rate; radial velocity wrt coord. center (au/day)
+
+Geometric states/elements have no aberrations applied.
+
+
+ Computations by ...
+     Solar System Dynamics Group, Horizons On-Line Ephemeris System
+     4800 Oak Grove Drive, Jet Propulsion Laboratory
+     Pasadena, CA  91109   USA
+     Information  : https://ssd.jpl.nasa.gov/
+     Documentation: https://ssd.jpl.nasa.gov/?horizons_doc
+     Connect      : https://ssd.jpl.nasa.gov/?horizons (browser)
+                    telnet ssd.jpl.nasa.gov 6775       (command-line)
+                    e-mail command interface available
+                    Script and CGI interfaces available
+     Author       : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************
+    """
     # ---------------------------------------------------
     
     # Assert that the returned quantities have the expected numerical values
     # -->> We query horizons using tdb=2458337.82915783
+    # X = 7.101323039968829E-01 Y =-6.636211705364583E-01 Z =-2.882396266749596E-01
     expectedPosns = np.array([
-          [1.062342805938861E+08 ,-1.082364019892699E+08 ,-7.200821989670396E+04]                              ] )
-    assert np.allclose(S.posns , expectedPosns, rtol=1e-05, atol=1e+02), \
-        ' Not close enough to expected values: returned=[%r], expected=[%r]' % (S.posns , expectedPosns)
-
+            [7.101323039968829E-01, -6.636211705364583E-01, -2.882396266749596E-01]
+            ] )
+    assert np.allclose(S.posns , expectedPosns, rtol=1e-06, atol=1e+02), \
+        ' Not close enough to expected values:\n S.posns returned=...\n[%r]\n, expected=...\n[%r]' % (S.posns , expectedPosns)
 
 def test_Satellite_E():
     """Test that a Satellite-object returns the expected positions for multiple jdutc's """
@@ -217,14 +258,15 @@ def test_Satellite_E():
     S = wis.Satellite(obscode, time)
 
     # Assert that the returned quantities have the expected numerical values
-    # -->> We input                   jdutc = [2458337.8283571, 2458337.8283571]
     # -->> So we query horizons using tdb   = [2458338.82915783,2458338.82915783]
+    #X = 7.101323039968829E-01 Y =-6.636211705364583E-01 Z =-2.882396266749596E-01
+    #X = 7.228838752596055E-01 Y =-6.530547342937241E-01 Z =-2.830064804389050E-01
     expectedPosns = np.array([
-                              [1.062342805938861E+08 ,-1.082364019892699E+08 ,-7.200821989670396E+04],
-                              [1.081418885028859E+08 ,-1.064747162599978E+08 ,1.748584038066864E+04]
+                              [7.101323039968829E-01, -6.636211705364583E-01, -2.882396266749596E-01],
+                              [7.228838752596055E-01, -6.530547342937241E-01, -2.830064804389050E-01]
                               ] )
-    assert np.allclose(S.posns , expectedPosns, rtol=1e-05, atol=1e+02), \
-        ' Not close enough to expected values: returned=[%r], expected=[%r]' % (S.posns , expectedPosns)
+    assert np.allclose(S.posns , expectedPosns, rtol=1e-06, atol=1e+02), \
+        ' Not close enough to expected values:\n S.posns returned=...\n[%r]\n, expected=...\n[%r]' % (S.posns , expectedPosns)
 
 
 
@@ -236,55 +278,94 @@ def test_Satellite_F():
     S = wis.Satellite(obscode, time)
 
     # *** DATA FROM EXPLICIT HORIZONS QUERY -------------
-    '''
-        *******************************************************************************
-        Ephemeris / WWW_USER Sat Apr  6 16:48:37 2019 Pasadena, USA      / Horizons
-        *******************************************************************************
-        Target body name: Kepler (spacecraft) (-227)      {source: KEPLER_FINAL_56_traj}
-        Center body name: Sun (10)                        {source: DE431mx}
-        Center-site name: BODY CENTER
-        *******************************************************************************
-        Start time      : A.D. 2018-Aug-07 07:53:59.2365 TDB
-        Stop  time      : A.D. 2018-Aug-08 07:53:59.2365 TDB
-        Step-size       : 0 steps
-        *******************************************************************************
-        Center geodetic : 0.00000000,0.00000000,0.0000000 {E-lon(deg),Lat(deg),Alt(km)}
-        Center cylindric: 0.00000000,0.00000000,0.0000000 {E-lon(deg),Dxy(km),Dz(km)}
-        Center radii    : 696000.0 x 696000.0 x 696000.0 k{Equator, meridian, pole}
-        Output units    : KM-D
-        Output type     : GEOMETRIC cartesian states
-        Output format   : 3 (position, velocity, LT, range, range-rate)
-        Reference frame : ICRF/J2000.0
-        Coordinate systm: Earth Mean Equator and Equinox of Reference Epoch
-        *******************************************************************************
-        JDTDB
-        X     Y     Z
-        VX    VY    VZ
-        LT    RG    RR
-        *******************************************************************************
-        $$SOE
-        2458337.829157830 = A.D. 2018-Aug-07 07:53:59.2365 TDB [del_T=     69.183095 s]
-        X =-4.858100540844912E+07 Y =-1.372859005990007E+08 Z =-5.819772565136361E+07
-        VX= 2.340000498026259E+06 VY=-7.234023419283163E+05 VZ=-3.162890228925920E+05
-        LT= 6.054588378363853E-03 RG= 1.568263621358534E+08 RR= 2.576522774919989E+04
-        2458338.829157830 = A.D. 2018-Aug-08 07:53:59.2365 TDB [del_T=     69.183072 s]
-        X =-4.623486717679888E+07 Y =-1.379916441006971E+08 Z =-5.850652841841828E+07
-        VX= 2.352174577160001E+06 VY=-6.880572825335978E+05 VZ=-3.013044929887279E+05
-        LT= 6.055556118005271E-03 RG= 1.568514285942110E+08 RR= 2.436672981897528E+04
-        $$EOE
-        *******************************************************************************
-    '''
+    """
+*******************************************************************************
+Ephemeris / WWW_USER Tue Jan 26 10:10:35 2021 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: Kepler (spacecraft) (-227)      {source: KEPLER_FINAL_56_traj}
+Center body name: Sun (10)                        {source: DE431mx}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2018-Aug-07 07:53:59.2365 TDB
+Stop  time      : A.D. 2018-Aug-08 07:53:59.2365 TDB
+Step-size       : 1440 minutes
+*******************************************************************************
+Center geodetic : 0.00000000,0.00000000,0.0000000 {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.00000000,0.00000000,0.0000000 {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 696000.0 x 696000.0 x 696000.0 k{Equator, meridian, pole}
+Output units    : AU-D
+Output type     : GEOMETRIC cartesian states
+Output format   : 3 (position, velocity, LT, range, range-rate)
+Reference frame : ICRF
+*******************************************************************************
+JDTDB
+   X     Y     Z
+   VX    VY    VZ
+   LT    RG    RR
+*******************************************************************************
+$$SOE
+2458337.829157830 = A.D. 2018-Aug-07 07:53:59.2365 TDB
+ X =-3.247439631457193E-01 Y =-9.176995632113913E-01 Z =-3.890277674336675E-01
+ VX= 1.564193719517850E-02 VY=-4.835645979156440E-03 VZ=-2.114261529378122E-03
+ LT= 6.054588378363500E-03 RG= 1.048319480765473E+00 RR= 1.722299096179222E-04
+2458338.829157830 = A.D. 2018-Aug-08 07:53:59.2365 TDB
+ X =-3.090609977353972E-01 Y =-9.224171671345395E-01 Z =-3.910919864336775E-01
+ VX= 1.572331588778283E-02 VY=-4.599378850291082E-03 VZ=-2.014096133749677E-03
+ LT= 6.055556118004938E-03 RG= 1.048487039690214E+00 RR= 1.628815283630382E-04
+$$EOE
+*******************************************************************************
+Coordinate system description:
+
+  International Celestial Reference Frame (ICRF)
+
+    The ICRF is an adopted reference frame whose axes are defined relative to
+    fixed extragalactic radio sources distributed across the sky.
+
+    The ICRF was aligned with the prior FK5/J2000 dynamical system at the ~0.02
+    arcsecond level but is not identical and has no associated standard epoch.
+
+  Symbol meaning [1 au= 149597870.700 km, 1 day= 86400.0 s]:
+
+    JDTDB    Julian Day Number, Barycentric Dynamical Time
+      X      X-component of position vector (au)
+      Y      Y-component of position vector (au)
+      Z      Z-component of position vector (au)
+      VX     X-component of velocity vector (au/day)
+      VY     Y-component of velocity vector (au/day)
+      VZ     Z-component of velocity vector (au/day)
+      LT     One-way down-leg Newtonian light-time (day)
+      RG     Range; distance from coordinate center (au)
+      RR     Range-rate; radial velocity wrt coord. center (au/day)
+
+Geometric states/elements have no aberrations applied.
+
+
+ Computations by ...
+     Solar System Dynamics Group, Horizons On-Line Ephemeris System
+     4800 Oak Grove Drive, Jet Propulsion Laboratory
+     Pasadena, CA  91109   USA
+     Information  : https://ssd.jpl.nasa.gov/
+     Documentation: https://ssd.jpl.nasa.gov/?horizons_doc
+     Connect      : https://ssd.jpl.nasa.gov/?horizons (browser)
+                    telnet ssd.jpl.nasa.gov 6775       (command-line)
+                    e-mail command interface available
+                    Script and CGI interfaces available
+     Author       : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************
+    """
 
     # Assert that the returned quantities have the expected numerical values
-    # -->> We input                   jdutc = [2458337.8283571, 2458337.8283571]
+    #X =-3.247439631457193E-01 Y =-9.176995632113913E-01 Z =-3.890277674336675E-01
+    #X =-3.090609977353972E-01 Y =-9.224171671345395E-01 Z =-3.910919864336775E-01
     # -->> So we query horizons using tdb   = [2458338.82915783,2458338.82915783]
     expectedPosns = np.array([
-                              [-4.858100540844912E+07 ,-1.491070769659011E+08 , 1.213825751472302E+06],
-                              [-4.623486717679888E+07 ,-1.498774186555523E+08 , 1.211233394904539E+06]
+                              [-3.247439631457193E-01, -9.176995632113913E-01, -3.890277674336675E-01],
+                              [-3.090609977353972E-01, -9.224171671345395E-01, -3.910919864336775E-01]
                               ] )
-    assert np.allclose(S.posns , expectedPosns, rtol=1e-05, atol=1e+02), \
+    assert np.allclose(S.posns , expectedPosns, rtol=1e-06, atol=1e+02), \
         ' Not close enough to expected values: returned=[%r], expected=[%r]' % (S.posns , expectedPosns)
 
+'''
 
 def test_Satellite_G():
     """ Test that the position of CASSINI is as expected """
@@ -314,7 +395,7 @@ def test_Satellite_G():
     ' Not close enough to expected values: returned=[%r], expected=[%r]' % (S.ltts , expectedLTT)
 
 
-
+'''
 
 
 # -----------------------------------------

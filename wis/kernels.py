@@ -16,6 +16,7 @@ import os
 import sys
 import spiceypy as sp
 import warnings
+import time
 
 # -----------------------------------------
 # Local imports
@@ -26,143 +27,49 @@ import warnings
 # WIS functions & classes
 # -----------------------------------------
 
-class KernelDownloader(object):
+class KernelSpecifier(object):
     """
-        KernelDownloader-Object
+        KernelSpecifier-Object
         
         Holds the specification of where data is online for a given satellite
         
         Provides method to download the data to local machine
+        
+        *** IT IS RARE THAT THE USER WILL HAVE TO DEFINE OR DECLARE A KernelSpecifier     ***
+        *** They will only be defined when providing a new set of kernels for a satellite ***
+        
     """
     
-    def __init__(self,):
-        pass
-        ''' NB, we will need to set the following variables when we define each instantiation '''
-        '''
-        self.obscode        = None
-        self.name           = None
-        self.files          = []
-        self.wildcards      = {}
-        '''
+    def __init__(self, obscode = None, name = None, files = [] , wildcards = [] , timecritical = [] ):
         
-    def download_data(self, destinationDirectory):
+        # Check inputs are as desired
+        assert obscode is not None and name is not None and files
         
-        # Download explicitly named files
-        for f in self.files:
-            try:
-                wget.download(f, out=destinationDirectory)
-            except:
-                print("Failed to download %r" % f)
-                    
-        # Download files using wildcards
+        # Instantiate class variables from inputs
+        self.obscode , self.name, self.files, self.wildcards, self.timecritical = \
+            obscode, name, files, wildcards, timecritical
+            
+        # Define a list of expected local filepaths
+        self.expected_local_kernel_filepaths = self.get_expected_local_kernel_filepaths()
+        
+
+    # Data directories / filepaths
+    # ----------------------------------------------
+    def get_expected_local_kernel_filepaths(self, ):
+        destinationDirectory = self.define_download_subdir()
+
+        # get the file names from the urls in the .files variable
+        expected_filepaths = [ os.path.join( destinationDirectory, _.split('/')[-1] ) for _ in self.files ]
+
+        # if there are any wildcards, get those names too
         for url,wildcard in self.wildcards.items():
             for f in self._listFD(url, wildcard = wildcard):
-                wget.download(f, out=destinationDirectory)
-            
+                expected_filepaths.append( os.path.join( destinationDirectory, f.split('/')[-1] ) )
+        
+        # return
+        return expected_filepaths
+        
     
-        # Check whether the download worked
-        downloaded, downloadedKernelFiles = self.kernels_have_been_downloaded(destinationDirectory)
-
-        if downloaded:
-            return downloadedKernelFiles
-        else:
-            #print("destinationDirectory", destinationDirectory)
-            #print("downloaded, downloadedKernelFiles", downloaded, downloadedKernelFiles)
-            sys.exit('download unsuccessful ... ')
-            
-
-    def kernels_have_been_downloaded(self, destinationDirectory):
-        
-        # Check what files exist locally
-        # -----------------------------------------------
-        downloadedKernelFiles = [ f[f.rfind("/")+1:] for f in glob.glob("%s/*" % destinationDirectory) ]
-        
-        # Check what files *need* to exist (if wildcards exist, we demand at least 1 download per wildcard)
-        # - if they don't, then download
-        # -----------------------------------------------
-        requiredFiles = [ f[f.rfind("/")+1:] for f in self.files ]
-        if len(downloadedKernelFiles) < len(requiredFiles)+len(self.wildcards) or \
-                not np.all( [ rf in downloadedKernelFiles for rf in requiredFiles] ):
-            return False, []
-        else:
-            return True, downloadedKernelFiles
-
-
-    def _listFD(self , url, wildcard=''):
-        '''
-            List all the files in a url
-            Allows a wildcard of the form stem*end
-            Stolen from
-            https://stackoverflow.com/questions/11023530/python-to-list-http-files-and-directories
-        '''
-        
-        # Split wildcard (if it contains "*")
-        if wildcard.count("*") == 0:
-            wildcardStart = wildcard
-            wildcardEnd   = ''
-        elif wildcard.count("*") == 1:
-            wildcardStart = wildcard[ : wildcard.find("*")]
-            wildcardEnd   = wildcard[ wildcard.find("*") + 1 :]
-        else:
-            sys.exit('Cannot parse wildcards with >=2 asterisks in them ... [%r]' % wildcard)
-
-        # Get page ...
-        page = requests.get(url).text
-
-        # Parse page
-        soup = BeautifulSoup(page, 'html.parser')
-        
-        # Return matching filenames
-        return [url + '/' + node.get('href') for node in soup.find_all('a') if node.get('href').startswith(wildcardStart) and node.get('href').endswith(wildcardEnd) ]
-
-
-
-
-
-class KernelLoader(object):
-    """
-        Object to manage the loading of JPL spice-kernels into memory.
-         - NB: it will also download from the interwebs if not available locally
-        
-        Parameters
-        ----------
-        obscode : MPC observation code
-            3 or 4 character string
-        
-        Attributes
-        ----------
-        ??? : ???
-        ???
-        
-        Notes
-        -----
-        """
-    
-    def __init__(self, obscode_specific_KernelDownloader):
-
-        # Directory for downloaded kernels
-        # -----------------------------------------------
-        self.download_dir = self.define_download_dir()
-                
-        # Manage sub-directory for obscode downloads
-        # -----------------------------------------------
-        self.download_subdir = self.define_download_subdir(obscode_specific_KernelDownloader.obscode)
-        
-        # Try to get the specific desired kernel-files locally ...
-        # If not available locally, do remote download of kernels
-        # -----------------------------------------------
-        downloaded, kernelFiles = obscode_specific_KernelDownloader.kernels_have_been_downloaded(self.download_subdir)
-        if not downloaded:
-            kernelFiles = obscode_specific_KernelDownloader.download_data(self.download_subdir)
-
-        # Load the satellite-specific kernels
-        # -----------------------------------------------
-        kernelFilepaths = [ os.path.join(self.download_subdir , f) for f in kernelFiles ]
-        sp.furnsh(kernelFilepaths)
-
-
-
-
     def define_download_dir(self):
         """
         Returns the default path to the directory where files will be saved
@@ -196,10 +103,10 @@ class KernelLoader(object):
 
         return download_dir
 
-    def define_download_subdir(self, obscode):
+    def define_download_subdir(self, ):
         """
             Returns the default path to the subdirectory where files will be saved
-            or loaded for a specific obscode
+            or loaded for a specific satellite obscode
             
             Uses define_download_dir() to get its parent directly
             
@@ -209,10 +116,134 @@ class KernelLoader(object):
                 Path to location of `download_subdir` where kernels will be downloaded
                 
         """
-        # Get the main download-dir
-        d = self.define_download_dir()
+        
+        # Manage sub-directory for obscode downloads
+        # Ground-based stuff stored at the top-level, satellites get their own sub-dir
+        if self.name == 'GROUND':
+            download_subdir = self.define_download_dir()
+        else:
+            download_subdir = os.path.join( self.define_download_dir(), self.obscode)
+
         # define a sub-dir path for this obscode
-        download_subdir = os.path.join(d, obscode)
-        if not os.path.isdir(download_subdir):
-            os.mkdir(download_subdir)
+        if not os.path.isdir( download_subdir ):
+            os.mkdir( download_subdir )
+            
         return download_subdir
+
+
+    # Download methods
+    # ----------------------------------------------
+    def download_data(self,):
+        
+        # Download explicitly named files
+        for f in self.files:
+            print('downloading ...',f)
+            try:
+                wget.download(f, out=self.define_download_subdir() )
+            except:
+                print("Failed to download %r" % f)
+                    
+        # Download files using wildcards
+        for url,wildcard in self.wildcards.items():
+            for f in self._listFD(url, wildcard = wildcard):
+                wget.download(f, out=self.define_download_subdir() )
+    
+        # Check whether the download worked
+        if self.kernels_have_been_downloaded():
+            return True
+        else:
+            sys.exit('download unsuccessful ... ')
+            
+
+    def kernels_have_been_downloaded(self,):
+        """ Check whether all expected kernel files have been downloaded """
+        
+        # Check what files exist locally
+        # -----------------------------------------------
+        downloadedKernelFiles = [ f for f in glob.glob("%s/*" % self.define_download_subdir() ) if os.path.isfile(f) ]
+        
+        # Compare against the files that *should* exist
+        # returns True if all expected files have been downloaded
+        # -----------------------------------------------
+        return np.all( [ f in downloadedKernelFiles for f in self.expected_local_kernel_filepaths ] )
+            
+
+
+    def _listFD(self , url, wildcard=''):
+        '''
+            List all the files in a url
+            Allows a wildcard of the form stem*end
+            Stolen from
+            https://stackoverflow.com/questions/11023530/python-to-list-http-files-and-directories
+        '''
+        
+        # Split wildcard (if it contains "*")
+        if wildcard.count("*") == 0:
+            wildcardStart = wildcard
+            wildcardEnd   = ''
+        elif wildcard.count("*") == 1:
+            wildcardStart = wildcard[ : wildcard.find("*")]
+            wildcardEnd   = wildcard[ wildcard.find("*") + 1 :]
+        else:
+            sys.exit('Cannot parse wildcards with >=2 asterisks in them ... [%r]' % wildcard)
+
+        # Get page ...
+        page = requests.get(url).text
+
+        # Parse page
+        soup = BeautifulSoup(page, 'html.parser')
+        
+        # Return matching filenames
+        return [url + '/' + node.get('href') for node in soup.find_all('a') if \
+            isinstance(node.get('href'), str ) and \
+            node.get('href').startswith(wildcardStart) and \
+            node.get('href').endswith(wildcardEnd) ]
+
+
+
+    def force_timecritical_download(self,):
+        """ we may want to ensure we have "fresh" copies of some files """
+        for f in self.timecritical:
+            filename       = f.split("/")[-1]
+            local_filepath = os.path.join( self.define_download_subdir() , filename)
+            age_in_days    =  (time.time() - os.path.getmtime(local_filepath))/(3600.*24.)
+            if age_in_days > 1.0 :
+                try:
+                    os.rename(local_filepath , local_filepath+"old")
+                    wget.download(f, out=self.define_download_subdir() )
+                except:
+                    print("Failed to download %r" % f)
+         
+
+
+    # Load method(s)
+    # ----------------------------------------------
+    def load(self,):
+        """ load the kernels into memory """
+
+        # Ensure time-critical files are up-to-date
+        # -----------------------------------------------
+        self.force_timecritical_download()
+
+        # Try to open the local kernel files
+        # -----------------------------------------------
+        try:
+            sp.furnsh( self.expected_local_kernel_filepaths )
+
+        # If the local files don't exist
+        #  - Download from the interwebs
+        #  - Attempt to load again
+        # -----------------------------------------------
+        except:
+            self.download_data()
+            sp.furnsh(self.expected_local_kernel_filepaths)
+
+
+
+
+    
+
+
+
+
+

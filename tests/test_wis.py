@@ -27,9 +27,6 @@ import wis
 # Test Functions
 # -----------------------------------------
 
-
-
-
 def test_Satellite_E_via_wis():
     """
     Test that a Satellite-object returns the expected positions for multiple jdutc's
@@ -46,11 +43,12 @@ def test_Satellite_E_via_wis():
     assert isinstance(W, wis.Satellite )
 
     # Assert that the returned quantities have the expected numerical values
-    # -->> We input                   jdutc = [2458337.8283571, 2458337.8283571]
     # -->> So we query horizons using tdb   = [2458338.82915783,2458338.82915783]
+    #X = 7.101323039968829E-01 Y =-6.636211705364583E-01 Z =-2.882396266749596E-01
+    #X = 7.228838752596055E-01 Y =-6.530547342937241E-01 Z =-2.830064804389050E-01
     expectedPosns = np.array([
-                              [1.062342805938861E+08 ,-1.082364019892699E+08 ,-7.200821989670396E+04],
-                              [1.081418885028859E+08 ,-1.064747162599978E+08 ,1.748584038066864E+04]
+                              [7.101323039968829E-01, -6.636211705364583E-01, -2.882396266749596E-01],
+                              [7.228838752596055E-01, -6.530547342937241E-01, -2.830064804389050E-01]
                               ] )
     assert np.allclose(W.posns , expectedPosns, rtol=1e-05, atol=1e+02), \
         ' Not close enough to expected values: returned=[%r], expected=[%r]' % (W.posns , expectedPosns)
